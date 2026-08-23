@@ -76,6 +76,7 @@ jobs:
         shell: powershell
         run: |
           kubectl apply -f k8s/00-namespace-inexistente.yaml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           kubectl apply -f k8s
           kubectl rollout status statefulset/postgres --namespace accounts --timeout=120s
           kubectl rollout status deployment/seq --namespace accounts --timeout=120s
