@@ -1,0 +1,40 @@
+@CleanArchitecture.Full.Api_HostAddress = http://localhost:5264
+
+GET {{CleanArchitecture.Full.Api_HostAddress}}/api/clientes
+Accept: application/json
+
+###
+
+POST {{CleanArchitecture.Full.Api_HostAddress}}/api/clientes
+Content-Type: application/json
+
+{
+  "nombre": "Margaret",
+  "apellido": "Hamilton",
+  "numeroDocumento": "20-30000004-4",
+  "correoElectronico": "margaret.hamilton@example.com",
+  "telefono": "+54-9-11-0004",
+  "fechaNacimiento": "1936-08-17"
+}
+
+###
+
+GET {{CleanArchitecture.Full.Api_HostAddress}}/api/cuentas
+Accept: application/json
+
+###
+
+POST {{CleanArchitecture.Full.Api_HostAddress}}/api/cuentas
+Content-Type: application/json
+
+{
+  "clienteId": "00000000-0000-0000-0000-000000000000",
+  "numeroCuenta": "CTA-0004",
+  "tipoCuenta": "Corriente",
+  "moneda": "USD",
+  "saldo": 5000,
+  "limiteSobregiro": 200,
+  "estado": "Activa"
+}
+
+###

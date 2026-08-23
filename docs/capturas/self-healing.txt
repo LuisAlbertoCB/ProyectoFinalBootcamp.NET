@@ -1,0 +1,13 @@
+﻿$ kubectl get pods -n accounts -l app.kubernetes.io/name=accounts-api
+NAME                            READY   STATUS    RESTARTS   AGE
+accounts-api-68b8d95795-hf9ph   1/1     Running   0          39m
+accounts-api-68b8d95795-jg5ml   1/1     Running   0          39m
+
+$ kubectl delete pod accounts-api-68b8d95795-hf9ph -n accounts
+pod "accounts-api-68b8d95795-hf9ph" deleted from accounts namespace
+
+$ kubectl get pods -n accounts -l app.kubernetes.io/name=accounts-api
+(el ReplicaSet ya recreo el pod borrado)
+NAME                            READY   STATUS    RESTARTS   AGE
+accounts-api-68b8d95795-g8fn6   0/1     Running   0          10s
+accounts-api-68b8d95795-jg5ml   1/1     Running   0          39m

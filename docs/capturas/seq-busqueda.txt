@@ -1,0 +1,16 @@
+﻿Busqueda en Seq: Application = 'CleanArchitecture.Full.Api'
+
+
+Level       MachineName                   RequestId              RequestPath   StatusCode
+-----       -----------                   ---------              -----------   ----------
+Information accounts-api-795495594c-xmb95 0HNO16E3B91L1:00000001 /api/clientes        404
+Warning     accounts-api-795495594c-xmb95 0HNO16E3B91L1:00000001 /api/clientes        404
+Information accounts-api-795495594c-xmb95 0HNO16E3B91L1:00000001 /api/clientes           
+Information accounts-api-795495594c-xmb95 0HNO16E3B91L0:00000001 /api/clientes        404
+Warning     accounts-api-795495594c-xmb95 0HNO16E3B91L0:00000001 /api/clientes        404
+Information accounts-api-795495594c-xmb95 0HNO16E3B91L0:00000001 /api/clientes           
+
+
+
+Pods distintos que aparecen en los resultados (misma busqueda, distintas replicas):
+accounts-api-795495594c-xmb95

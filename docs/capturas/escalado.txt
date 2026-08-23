@@ -1,0 +1,22 @@
+﻿$ kubectl get deployment accounts-api -n accounts
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+accounts-api   1/2     2            1           2d16h
+
+$ helm upgrade accounts-api ./helm/accounts-api --set replicaCount=4 --wait
+Release "accounts-api" has been upgraded. Happy Helming!
+NAME: accounts-api
+LAST DEPLOYED: Sun Aug 23 13:27:53 2026
+NAMESPACE: accounts
+STATUS: deployed
+REVISION: 9
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+
+$ kubectl get deployment accounts-api -n accounts
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+accounts-api   4/4     4            4           2d16h
+NAME                            READY   STATUS    RESTARTS   AGE
+accounts-api-795495594c-7dc7g   1/1     Running   0          28s
+accounts-api-795495594c-7jj9h   1/1     Running   0          26s
+accounts-api-795495594c-mfdg7   1/1     Running   0          57s
+accounts-api-795495594c-xmb95   1/1     Running   0          57s

@@ -1,0 +1,12 @@
+# Overrides de entorno "dev" (uso: helm upgrade --install ... -f values.yaml -f values-dev.yaml)
+replicaCount: 1
+
+aspnetEnvironment: Development
+
+resources:
+  limits:
+    cpu: 250m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

@@ -1,0 +1,108 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd-main
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: Build and push Docker image
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set image tag
+        id: meta
+        shell: bash
+        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/accounts-api:${{ steps.meta.outputs.tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/accounts-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to local Minikube
+    needs: package
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Verify Minikube context
+        shell: powershell
+        run: |
+          minikube status
+          kubectl config use-context minikube
+          kubectl cluster-info
+
+      - name: Deploy PostgreSQL and Seq
+        shell: powershell
+        run: |
+          kubectl apply -f k8s/00-namespace.yaml
+          kubectl apply -f k8s
+          kubectl rollout status statefulset/postgres --namespace accounts --timeout=120s
+          kubectl rollout status deployment/seq --namespace accounts --timeout=120s
+
+      - name: Apply database schema and seed
+        shell: powershell
+        run: |
+          Get-Content database/02_create_table_and_seed.sql -Raw |
+            kubectl exec --stdin statefulset/postgres --namespace accounts -- `
+              psql -v ON_ERROR_STOP=1 -U postgres -d accountsdb
+
+      - name: Deploy API with Helm
+        shell: powershell
+        run: |
+          helm upgrade --install accounts-api ./helm/accounts-api `
+            --namespace accounts `
+            --create-namespace `
+            -f helm/accounts-api/values.yaml `
+            -f helm/accounts-api/values-prod.yaml `
+            --set image.repository=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/accounts-api `
+            --set image.tag=${{ needs.package.outputs.image_tag }} `
+            --set image.pullPolicy=Always `
+            --wait `
+            --timeout 3m
+
+      - name: Verify API rollout
+        shell: powershell
+        run: |
+          kubectl rollout status deployment/accounts-api --namespace accounts --timeout=120s
+          kubectl get pods,services --namespace accounts

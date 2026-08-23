@@ -1,0 +1,12 @@
+# Overrides de entorno "qa" (uso: helm upgrade --install ... -f values.yaml -f values-qa.yaml)
+replicaCount: 2
+
+aspnetEnvironment: Staging
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 384Mi
+  requests:
+    cpu: 200m
+    memory: 192Mi

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: 10.0.x
+
+jobs:
+  build-and-test:
+    name: Validate (restore, build, test)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore CleanArchitecture.Full.slnx
+
+      - name: Build
+        run: dotnet build CleanArchitecture.Full.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test CleanArchitecture.Full.slnx --configuration Release --no-build --verbosity normal
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Validate Helm chart
+        run: |
+          helm lint helm/accounts-api
+          helm template accounts-api helm/accounts-api > /dev/null

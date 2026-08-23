@@ -1,0 +1,13 @@
+# Overrides de entorno "prod" (uso: helm upgrade --install ... -f values.yaml -f values-prod.yaml)
+# Es el entorno que usa el job "cd" del pipeline para desplegar en el Minikube local.
+replicaCount: 2
+
+aspnetEnvironment: Production
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
