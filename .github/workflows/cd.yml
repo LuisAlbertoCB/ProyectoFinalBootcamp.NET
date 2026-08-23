@@ -75,7 +75,7 @@ jobs:
       - name: Deploy PostgreSQL and Seq
         shell: powershell
         run: |
-          kubectl apply -f k8s/00-namespace-inexistente.yaml
+          kubectl apply -f k8s/00-namespace.yaml
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           kubectl apply -f k8s
           kubectl rollout status statefulset/postgres --namespace accounts --timeout=120s
