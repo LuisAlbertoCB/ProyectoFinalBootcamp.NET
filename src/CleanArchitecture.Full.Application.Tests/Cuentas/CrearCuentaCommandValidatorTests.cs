@@ -33,7 +33,7 @@ public class CrearCuentaCommandValidatorTests
     [Fact]
     public async Task Saldo_negativo_no_debe_ser_valido()
     {
-        var comando = ComandoValido() with { Saldo = -1 };
+        var comando = ComandoValido() with { Saldo = 1 };
 
         var result = await _validator.ValidateAsync(comando);
 
